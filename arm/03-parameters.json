@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "servicePrincipalClientId": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/57ac26cf-a9f0-4908-b300-9a4e9a0fb205/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/jahanse"
+                },
+                "secretName": "barfly-labs-sp-client-id"
+            }
+        },
+        "servicePrincipalClientSecret": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/57ac26cf-a9f0-4908-b300-9a4e9a0fb205/resourceGroups/secrets/providers/Microsoft.KeyVault/vaults/jahanse"
+                },
+                "secretName": "barfly-labs-sp-secret"
+            }
+        }
+    }
+}

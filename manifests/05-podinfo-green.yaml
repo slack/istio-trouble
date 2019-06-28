@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: podinfo-green
+  labels:
+    app: podinfo
+    release: green
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: podinfo
+    release: green
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: podinfo-green
+spec:
+  hosts:
+  - "green.trouble.slack.io"
+  gateways:
+  - podinfo
+  http:
+  - route:
+    - destination:
+        port:
+          number: 8080
+        host: podinfo-green
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: podinfo-green
+  labels:
+    app: podinfo
+    release: green
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: podinfo
+      release: green
+  template:
+    metadata:
+      labels:
+        app: podinfo
+        release: green
+      annotations:
+        prometheus.io/scrape: 'true'
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: podinfo
+          image: "quay.io/stefanprodan/podinfo:1.6.1"
+          imagePullPolicy: IfNotPresent
+          command:
+            - ./podinfo
+            - --port=8080
+            - --level=info
+            - --random-delay=false
+            - --random-error=false
+          env:
+          - name: PODINFO_UI_COLOR
+            value: green
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+              - podcli
+              - check
+              - http
+              - localhost:8080/healthz
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+              - podcli
+              - check
+              - http
+              - localhost:8080/readyz
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+          volumeMounts:
+          - name: data
+            mountPath: /data
+          resources:
+            limits:
+              cpu: 50m
+              memory: 64Mi
+            requests:
+              cpu: 1m
+              memory: 16Mi
+      volumes:
+      - name: data
+        emptyDir: {}

@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: podinfo
+  labels:
+    app: podinfo
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: podinfo
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: podinfo
+spec:
+  hosts:
+  - "app.trouble.slack.io"
+  gateways:
+  - podinfo
+  http:
+  - match:
+    route:
+    - destination:
+        host: podinfo

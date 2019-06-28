@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: podinfo-blue
+  labels:
+    app: podinfo
+    release: blue
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: podinfo
+    release: blue

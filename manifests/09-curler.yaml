@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curler
+spec:
+  selector:
+    matchLabels:
+      app: curler
+  template:
+    metadata:
+      labels:
+        app: curler
+    spec:
+      containers:
+      - name: curler
+        image: jhansen/k8s-debug-pod:0.1.0
+        command: [ "/bin/sh", "-c", "while true; do date && curl -v -qs https://www.google.com > /dev/null ; sleep ${POD_SLEEP_SECS}; done "]
+        env:
+          - name: POD_SLEEP_SECS
+            value: "5"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
